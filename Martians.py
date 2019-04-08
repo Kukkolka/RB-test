@@ -16,7 +16,7 @@ class BaseMoveCommand(BaseCommand):
     robot = None
     
     def __init__(self,command_keyword, **kwargs):        
-        super().__init__(command_keyword,*kwargs)
+        super().__init__(command_keyword,**kwargs)
         for key, value in kwargs.items():
             if key == "robot":
                 self.robot = value
@@ -28,7 +28,7 @@ class Command_MoveLeft(BaseMoveCommand):
         
     def execute(self):
         print ("calling left command")
-        next(self.robot.position)
+        next(self.robot.direction)
         
 class Command_MoveRight(BaseMoveCommand):    
     def __init__(self, **kwargs):        
@@ -36,7 +36,7 @@ class Command_MoveRight(BaseMoveCommand):
         
     def execute(self):
         print ("calling left command")
-        self.robot.position.__prev__()
+        self.robot.direction.__prev__()
         
 class Commands:
     L = "L"
@@ -46,12 +46,12 @@ class Commands:
     def __init__(self):
         pass
     
-    def factory(self,command):
+    def factory(self,command,**kwargs):
         if(self.command_exists(command)):
             if(command == self.L):
-                return Command_MoveLeft()
+                return Command_MoveLeft(**kwargs)
             elif(command == self.R):
-                return Command_MoveRight()
+                return Command_MoveRight(**kwargs)
             elif(command == self.F):
                 print("forward command not implemented")
         else:
@@ -85,13 +85,13 @@ class Directions:
         self.n += 1
         if self.n >= self.max:
             self.n = 0         
-        return self.angle()
+        return self.facing()
             
     def __prev__(self):    
         self.n -= 1
         if self.n < 0: 
             self.counter_clockwise()
-        return self.angle()
+        return self.facing()
     
     def counter_clockwise(self):
         self.n = self.max - 1
@@ -101,7 +101,7 @@ class Directions:
         self.n = 0 
         return self.n
     
-    def angle(self):
+    def facing(self):
         return self.directions[self.n]  
         
 class Grid:
@@ -118,25 +118,28 @@ class Martian:
         self.direction = iter(Directions([Directions.N, Directions.E, 
                                           Directions.S, Directions.W], d))
         comands = Commands()
-        self.addCommand(comands.factory("L"))
-        self.addCommand(comands.factory("R"))
-        self.addCommand(comands.factory("F"))
+        self.addCommand(comands.factory("L",robot=self))
+        self.addCommand(comands.factory("R",robot=self))
+        self.addCommand(comands.factory("F",robot=self))
         
     def addCommand(self,cmd):
-        self.known_commands.append(cmd)
+        if cmd is not None:
+            self.known_commands.append(cmd)
         
-    def right(self):
-        self.direction.__prev__()
-        
-    def forward(self):
-        pass        
-    
+    def execute_command(self,cmd):
+        for learned in self.known_commands:
+            if cmd == learned.command_keyword:
+                learned.execute()
+
+    def facing(self):
+        return self.direction.facing()
     
 class Martians:
     martians = []
     
     def main(self):
         print('starting martians')
+        
         
     def createMartian(self, x, y, d = Directions.N):
         self.martians.append(Martian([x, y], d))
