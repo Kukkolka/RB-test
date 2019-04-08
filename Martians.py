@@ -16,23 +16,23 @@ class BaseMoveCommand(BaseCommand):
     robot = None
     
     def __init__(self,command_keyword, **kwargs):        
-        super().__init__(command_keyword,kwargs)
+        super().__init__(command_keyword,*kwargs)
         for key, value in kwargs.items():
             if key == "robot":
                 self.robot = value
 
             
 class Command_MoveLeft(BaseMoveCommand):    
-    def __init__(self,command_keyword, **kwargs):        
-        super().__init__(command_keyword,kwargs)
+    def __init__(self, **kwargs):        
+        super().__init__("L", **kwargs)
         
     def execute(self):
         print ("calling left command")
         next(self.robot.position)
         
 class Command_MoveRight(BaseMoveCommand):    
-    def __init__(self,command_keyword, **kwargs):        
-        super().__init__(command_keyword,kwargs)
+    def __init__(self, **kwargs):        
+        super().__init__("R", **kwargs)
         
     def execute(self):
         print ("calling left command")
@@ -43,14 +43,17 @@ class Commands:
     R = "R"
     F = "F"
     
+    def __init__(self):
+        pass
+    
     def factory(self,command):
         if(self.command_exists(command)):
-            if(command == Commands.L):
+            if(command == self.L):
                 return Command_MoveLeft()
-            elif(command == Commands.R):
+            elif(command == self.R):
                 return Command_MoveRight()
-            elif(command == Commands.F):
-                print("not implemented")
+            elif(command == self.F):
+                print("forward command not implemented")
         else:
             raise Exception("Command does not exist")      
     
@@ -107,17 +110,27 @@ class Grid:
 
 
 class Martian:    
+    known_commands = []
+    
     def __init__(self, start_post, d ):
         self.x = start_post[0]
         self.y = start_post[1]
         self.direction = iter(Directions([Directions.N, Directions.E, 
                                           Directions.S, Directions.W], d))
-
+        comands = Commands()
+        self.addCommand(comands.factory("L"))
+        self.addCommand(comands.factory("R"))
+        self.addCommand(comands.factory("F"))
+        
+    def addCommand(self,cmd):
+        self.known_commands.append(cmd)
+        
     def right(self):
         self.direction.__prev__()
         
     def forward(self):
         pass        
+    
     
 class Martians:
     martians = []
