@@ -5,32 +5,38 @@ Created on Mon Apr  8 15:16:44 2019
 @author: Ilya Petin
 """
 import unittest
-from Martians import Martians
+from Martians import Martians, Directions
 
 
-class TestMartianInit(unittest.TestCase):
-    game = Martians()
-    expected_pos = ["N", "S", "E", "W"]
-    
+class TestDirection(unittest.TestCase):
     def test_directions(self):
-        self.game.setup()
-        self.assertEqual(self.game.directions.pos(),self.expected_pos[0])
+        dirs = iter(Directions(["N", "E", "S","W"]))
+        self.assertEqual(dirs.angle(),dirs.directions[0])
         
     def test_clockwise_rotation(self):
-        self.game.setup()
-        self.assertEqual(next(self.game.directions),self.expected_pos[1])
-        self.assertEqual(next(self.game.directions),self.expected_pos[2])
-        self.assertEqual(next(self.game.directions),self.expected_pos[3])
-        self.assertEqual(next(self.game.directions),self.expected_pos[0])
+        dirs = iter(Directions(["N", "E", "S","W"]))
+        self.assertEqual(next(dirs),dirs.directions[1])
+        self.assertEqual(next(dirs),dirs.directions[2])
+        self.assertEqual(next(dirs),dirs.directions[3])
+        self.assertEqual(next(dirs),dirs.directions[0])
+        self.assertEqual(next(dirs),dirs.directions[1])
         
-    def test_counter_clockwise_ratation(self):        
-        self.game.setup()
-        self.assertEqual(self.game.directions.__prev__(),self.expected_pos[3])
-        self.assertEqual(self.game.directions.__prev__(),self.expected_pos[2])
-        self.assertEqual(self.game.directions.__prev__(),self.expected_pos[1])
-        self.assertEqual(self.game.directions.__prev__(),self.expected_pos[0])      
-        self.assertEqual(self.game.directions.__prev__(),self.expected_pos[3])
-        
+    def test_counter_clockwise_ratation(self):  
+        dirs = iter(Directions(["N", "E", "S","W"]))
+        self.assertEqual(dirs.__prev__(),dirs.directions[3])
+        self.assertEqual(dirs.__prev__(),dirs.directions[2])
+        self.assertEqual(dirs.__prev__(),dirs.directions[1])
+        self.assertEqual(dirs.__prev__(),dirs.directions[0])      
+        self.assertEqual(dirs.__prev__(),dirs.directions[3])
+    
+    def test_martian_direction(self):
+        game = Martians()
+        game.setup()
+        game.createMartian(0,0)
+        self.assertEqual(game.martians[-1].direction.angle(), "N")
+        game.createMartian(0,0,"W")
+        self.assertEqual(game.martians[-1].direction.angle(), "W")
+    
 class TestMartians:    
     def main(self):
        unittest.main()    
