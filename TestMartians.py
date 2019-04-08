@@ -5,7 +5,7 @@ Created on Mon Apr  8 15:16:44 2019
 @author: Ilya Petin
 """
 import unittest
-from Martians import Martians, Directions
+from Martians import Martians, Directions, Commands
 
 
 class TestDirection(unittest.TestCase):
@@ -36,6 +36,15 @@ class TestDirection(unittest.TestCase):
         self.assertEqual(game.martians[-1].direction.angle(), "N")
         game.createMartian(0,0,"W")
         self.assertEqual(game.martians[-1].direction.angle(), "W")
+    
+class TestCommands(unittest.TestCase):
+    def test_default_values(self):
+      #  game = Martians()
+      #  game.createMartian(0,0)
+      #  martian = game.martians[-1]
+        commands = Commands()
+        self.assertEqual(commands.command_exists("L"), True)   
+        
     
 class TestMartians:    
     def main(self):
