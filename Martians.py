@@ -5,7 +5,7 @@ Created on Mon Apr  8 15:16:58 2019
 @author: Ilya Petin
 """
 
-class BaseCommand:
+class BaseCommand(object):
     def __init__(self,command_keyword, **kwargs):
         self.command_keyword = command_keyword
                 
@@ -27,17 +27,16 @@ class Command_MoveLeft(BaseMoveCommand):
         super().__init__("L", **kwargs)
         
     def execute(self):
-        print ("calling left command")
-        next(self.robot.direction)
+        self.robot.direction.right()
         
 class Command_MoveRight(BaseMoveCommand):    
     def __init__(self, **kwargs):        
         super().__init__("R", **kwargs)
         
     def execute(self):
-        print ("calling left command")
-        self.robot.direction.__prev__()
-        
+        self.robot.direction.left()
+    
+ 
 class Commands:
     L = "L"
     R = "R"
@@ -53,7 +52,7 @@ class Commands:
             elif(command == self.R):
                 return Command_MoveRight(**kwargs)
             elif(command == self.F):
-                print("forward command not implemented")
+                return Command_MoveForward(**kwargs)
         else:
             raise Exception("Command does not exist")      
     
@@ -63,7 +62,7 @@ class Commands:
     def command_exists(self, command):
         return command in self.get_list()
     
-class Directions:
+class Directions(object):
     N = "N"
     S = "S"
     W = "W"
@@ -76,18 +75,15 @@ class Directions:
         self.directions = dirs
         self.max = len(dirs)
         self.rotate_to = turn
-                
-    def __iter__(self):
         self.n = self.directions.index(self.rotate_to)
-        return self
-    
-    def __next__(self):
+                
+    def right(self):
         self.n += 1
         if self.n >= self.max:
             self.n = 0         
         return self.facing()
             
-    def __prev__(self):    
+    def left(self):   
         self.n -= 1
         if self.n < 0: 
             self.counter_clockwise()
@@ -103,24 +99,43 @@ class Directions:
     
     def facing(self):
         return self.directions[self.n]  
+    
+class Command_MoveForward(BaseMoveCommand):    
+    def __init__(self, **kwargs):        
+        super().__init__("F", **kwargs)
         
+    def execute(self):
+        
+        print("moving forward",self.robot.direction.facing())
+        if self.robot.direction.facing() == Directions.N:
+            self.robot.y += 1
+        elif self.robot.direction.facing() == Directions.S:
+            self.robot.y -= 1  
+        elif self.robot.direction.facing() == Directions.E:
+            self.robot.x += 1  
+        elif self.robot.direction.facing() == Directions.W:
+            self.robot.x -= 1       
+            
 class Grid:
-    def __init___(self, width, height):
-        pass
+    def create_new(self,size):
+        self.size = size
+        self.grid = [ [0] * self.size for _ in range(self.size)]
+        
+    def __str__(self):
+        print(str(self.grid))
 
 
-class Martian:    
-    known_commands = []
+class Martian(object):    
     
     def __init__(self, start_post, d ):
+        self.known_commands = []
         self.x = start_post[0]
         self.y = start_post[1]
-        self.direction = iter(Directions([Directions.N, Directions.E, 
-                                          Directions.S, Directions.W], d))
-        comands = Commands()
-        self.addCommand(comands.factory("L",robot=self))
-        self.addCommand(comands.factory("R",robot=self))
-        self.addCommand(comands.factory("F",robot=self))
+        self.direction = Directions([Directions.N, Directions.E, 
+                                          Directions.S, Directions.W], d)
+        self.addCommand(Command_MoveForward(robot = self))
+        self.addCommand(Command_MoveLeft(robot = self))
+        self.addCommand(Command_MoveRight(robot = self))
         
     def addCommand(self,cmd):
         if cmd is not None:
@@ -129,17 +144,19 @@ class Martian:
     def execute_command(self,cmd):
         for learned in self.known_commands:
             if cmd == learned.command_keyword:
+                print("moving",cmd)
                 learned.execute()
 
     def facing(self):
         return self.direction.facing()
     
-class Martians:
-    martians = []
+class Martians(object):
+    
+    def __init__(self):
+        self.martians = []
     
     def main(self):
-        print('starting martians')
-        
+        print('starting martians')        
         
     def createMartian(self, x, y, d = Directions.N):
         self.martians.append(Martian([x, y], d))

@@ -5,29 +5,29 @@ Created on Mon Apr  8 15:16:44 2019
 @author: Ilya Petin
 """
 import unittest
-from Martians import Martians, Directions, Commands
+from Martians import Martians, Directions, Commands, Grid
 
 
 class TestDirection(unittest.TestCase):
     def test_directions(self):
-        dirs = iter(Directions(["N", "E", "S","W"]))
+        dirs = Directions(["N", "E", "S","W"])
         self.assertEqual(dirs.facing(),dirs.directions[0])
         
     def test_clockwise_rotation(self):
-        dirs = iter(Directions(["N", "E", "S","W"]))
-        self.assertEqual(next(dirs),dirs.directions[1])
-        self.assertEqual(next(dirs),dirs.directions[2])
-        self.assertEqual(next(dirs),dirs.directions[3])
-        self.assertEqual(next(dirs),dirs.directions[0])
-        self.assertEqual(next(dirs),dirs.directions[1])
+        dirs = Directions(["N", "E", "S","W"])
+        self.assertEqual(dirs.right(),dirs.directions[1])
+        self.assertEqual(dirs.right(),dirs.directions[2])
+        self.assertEqual(dirs.right(),dirs.directions[3])
+        self.assertEqual(dirs.right(),dirs.directions[0])
+        self.assertEqual(dirs.right(),dirs.directions[1])
         
     def test_counter_clockwise_ratation(self):  
-        dirs = iter(Directions(["N", "E", "S","W"]))
-        self.assertEqual(dirs.__prev__(),dirs.directions[3])
-        self.assertEqual(dirs.__prev__(),dirs.directions[2])
-        self.assertEqual(dirs.__prev__(),dirs.directions[1])
-        self.assertEqual(dirs.__prev__(),dirs.directions[0])      
-        self.assertEqual(dirs.__prev__(),dirs.directions[3])
+        dirs = Directions(["N", "E", "S","W"])
+        self.assertEqual(dirs.left(),dirs.directions[3])
+        self.assertEqual(dirs.left(),dirs.directions[2])
+        self.assertEqual(dirs.left(),dirs.directions[1])
+        self.assertEqual(dirs.left(),dirs.directions[0])      
+        self.assertEqual(dirs.left(),dirs.directions[3])
     
     def test_martian_direction(self):
         game = Martians()
@@ -39,7 +39,7 @@ class TestDirection(unittest.TestCase):
     
 class TestCommands(unittest.TestCase):        
     def test_left_command(self):
-        dirs = iter(Directions(["N", "E", "S","W"]))
+        dirs = Directions(["N", "E", "S","W"])
         game = Martians()
         game.createMartian(0,0)
         martian = game.martians[-1]
@@ -47,19 +47,56 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(martian.facing(),dirs.directions[1])
         
     def test_right_command(self):
-        dirs = iter(Directions(["N", "E", "S","W"]))
+        dirs = Directions(["N", "E", "S","W"])
         game = Martians()
         game.createMartian(0,0)
         martian = game.martians[-1]
         martian.execute_command("R")
-        self.assertEqual(martian.facing(),dirs.directions[3])       
+        self.assertEqual(martian.facing(),dirs.directions[3])    
  
-    def test_forward_command(self):
+class TestGrid(unittest.TestCase):
+    def test_grid_build(self):
+        grid = Grid()
+        grid.create_new(5)
+        self.assertEqual(grid.grid[0][1],0)  
+        self.assertEqual(grid.grid[4][4],0)
+        
+    def test_forward_north_command(self):
         game = Martians()
-        game.createMartian(0,0)
+        game.createMartian(0,0,"N")
+        self.assertEqual(len(game.martians),1)
         martian = game.martians[-1]
-        martian.execute_command("F")   
-    
+        martian.execute_command("F")
+        self.assertEqual(martian.x,0)
+        self.assertEqual(martian.y,1) 
+        
+    def test_forward_east_command(self):
+        game = Martians()
+        game.createMartian(0,0,"E")
+        self.assertEqual(len(game.martians),1)
+        martian = game.martians[-1]
+        martian.execute_command("F")
+        self.assertEqual(martian.x,1)
+        self.assertEqual(martian.y,0) 
+        
+    def test_forward_west_command(self):
+        game = Martians()
+        game.createMartian(0,0,"W")
+        self.assertEqual(len(game.martians),1)
+        martian = game.martians[-1]
+        martian.execute_command("F")
+        self.assertEqual(martian.x,-1)
+        self.assertEqual(martian.y,0) 
+     
+    def test_forward_south_command(self):
+        game = Martians()
+        game.createMartian(0,0,"S")
+        self.assertEqual(len(game.martians),1)
+        martian = game.martians[-1]
+        martian.execute_command("F")
+        self.assertEqual(martian.x,0)
+        self.assertEqual(martian.y,-1)  
+                         
 class TestMartians:    
     def main(self):
        unittest.main()    
