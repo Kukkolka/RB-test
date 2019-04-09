@@ -81,21 +81,53 @@ class TestGrid(unittest.TestCase):
         
     def test_forward_west_command(self):
         game = Martians()
-        game.createMartian(0,0,"W")
-        self.assertEqual(len(game.martians),1)
-        martian = game.martians[-1]
-        martian.execute_command("F")
-        self.assertEqual(martian.x,-1)
-        self.assertEqual(martian.y,0) 
-     
-    def test_forward_south_command(self):
-        game = Martians()
-        game.createMartian(0,0,"S")
+        game.createMartian(1,0,"W")
         self.assertEqual(len(game.martians),1)
         martian = game.martians[-1]
         martian.execute_command("F")
         self.assertEqual(martian.x,0)
-        self.assertEqual(martian.y,-1)  
+        self.assertEqual(martian.y,0) 
+     
+    def test_forward_south_command(self):
+        game = Martians()
+        game.createMartian(0,1,"S")
+        self.assertEqual(len(game.martians),1)
+        martian = game.martians[-1]
+        martian.execute_command("F")
+        self.assertEqual(martian.x,0)
+        self.assertEqual(martian.y,0)  
+    
+    def test_bounds(self):
+        grid = Grid()
+        grid.create_new(51)
+        self.assertEqual(grid.in_bounds(0,50),True) 
+        
+    def test_lost(self):
+        game = Martians()
+        game.createMartian(0,0,"N")
+        grid = Grid()
+        grid.create_new(3)
+        game.grid = grid
+
+        self.assertEqual(len(game.martians),1)
+        martian = game.martians[-1]
+        martian.execute_command("F")
+        self.assertEqual(martian.y,1)  
+        martian.execute_command("F")
+        self.assertEqual(martian.y,2) 
+        martian.execute_command("F")
+        self.assertEqual(martian.y,2)
+        self.assertEqual(martian.is_lost,True)
+        #cant move twice to the same location
+        game.createMartian(0,0,"N")
+        martian2 = game.martians[-1]
+        martian2.execute_command("F")
+        self.assertEqual(martian2.y,1)  
+        martian2.execute_command("F")
+        self.assertEqual(martian2.y,1) 
+        martian2.execute_command("F")
+        self.assertEqual(martian2.y,1)
+        self.assertEqual(martian2.is_lost,False)        
                          
 class TestMartians:    
     def main(self):
