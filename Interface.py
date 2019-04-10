@@ -30,7 +30,7 @@ class Controller(object):
         robot = self.game.martians[-1]
         for command in commands_str:
             robot.execute_command(command)
-        print(robot.x, robot.y, robot.facing())
+        print(robot.x, robot.y,robot.facing(), robot.lost())
         
     def begin(self):
         dimention_args = input("Enter Grid dimentions seperated by whitespace e.g (5 3): \n")   
